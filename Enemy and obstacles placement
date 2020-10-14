@@ -1,0 +1,196 @@
+#include <iostream>
+#include <time.h>
+using namespace std;
+
+// Global variables
+int playerX = 4, playerY = 1; 
+int moveCounter = 3; // Player's moves
+char map[6][8] = { // Global variables
+	{'-','-','-','-','-','-','-','-'},
+	{'-','-','-','-','-','-','-','-'},
+	{'-','-','-','-','-','-','-','-'},
+	{'-','-','-','-','-','-','-','-'},
+	{'-','-','-','-','-','-','-','-'},
+	{'-','-','-','-','-','-','-','-'},
+};
+
+void startUp() {
+	int obstacleNumber = rand() % 4 + 1;  // Determines the number of obstacles
+	cout << "Obstacles: " << obstacleNumber << endl;
+	for (int i = 0; i < obstacleNumber; i++) {
+
+		int x = rand() % 6; // Determines the vertical coordinate
+		int y = rand() % 8; // Determines the horizonal coordinate
+		cout << x << " " << y << endl;
+
+		if ((x != playerX) && (y != playerY)) {
+			map[x][y] = 'B';
+		}
+	}
+
+	int enemyNumber = rand() % 6 + 1;  // Determines the number of enemies
+	cout << "Enemies: " << enemyNumber << endl;
+	for (int i = 0; i < enemyNumber; i++) {
+
+		int x = rand() % 6; // Determines the vertical coordinate
+		int y = rand() % 8; // Determines the horizontal coordinate
+		cout << x << " " << y << endl;
+
+		if ((x != playerX) && (y != playerY)) {
+			map[x][y] = 'E';
+		}
+	}
+}
+
+void enemyTurn()
+{
+
+
+
+}
+
+void attack()
+{
+
+
+
+}
+
+void push()
+{
+
+
+
+}
+
+void move()
+{
+	int dirInput;
+	cout << "\nWhich Direction?\n1. Up\n2. Down\n3. Left\n4. Right\n";
+	cin >> dirInput;
+	if (dirInput == 1) // Player moving up
+	{
+		if (map[playerX-1][playerY] != 'E') {
+			map[playerX][playerY] = '-';
+			playerX -= 1;
+		}
+		else {
+			cout << endl;
+			cout << "!!The Enemy is blocking your path!!\n";
+			moveCounter++;
+		}
+	}
+
+	else if (dirInput == 2) // Player moving down
+	{
+		if (map[playerX + 1][playerY] != 'E') {
+			map[playerX][playerY] = '-';
+			playerX += 1;
+		}
+		else {
+			cout << endl;
+			cout << "!!The Enemy is blocking your path!!\n";
+			moveCounter++;
+		}
+	}
+
+	else if (dirInput == 3) // Player moving left
+	{
+		if (map[playerX][playerY - 1] != 'E') {
+			map[playerX][playerY] = '-';
+			playerY -= 1;
+		}
+		else {
+			cout << endl;
+			cout << "!!The Enemy is blocking your path!!\n";
+			moveCounter++;
+		}
+	}
+
+	else if (dirInput == 4) // Player moving right
+	{
+		if (map[playerX][playerY + 1] != 'E') {
+			map[playerX][playerY] = '-';
+			playerY += 1;
+		}
+		else {
+			cout << endl;
+			cout << "!!The Enemy is blocking your path!!\n";
+			moveCounter++;
+		}
+	}
+}
+
+void markMap()
+{
+
+	for (int x = 0; x < 6; x++)
+	{
+		cout << "\n";
+		for (int y = 0; y < 8; y++)
+		{
+
+			if (x == playerX && y == playerY)
+			{
+				map[x][y] = 'P';
+
+			}
+			cout << map[x][y] << " "; // used to separate the map a bit
+		}
+
+	}
+	cout << "\n";
+
+}
+
+void playerTurn()
+{
+	int input;
+	do {
+		cout << moveCounter << " Moves Remaining.";
+		cout << "\nWhat would you like to do?\n1. Move\n2. Attack\n3. Push\n4. Use Item\n";
+		cin >> input;
+
+		if (input == 1)
+		{
+			move();
+			moveCounter--;
+		}
+
+		else if (input == 2)
+		{
+			moveCounter--;
+
+		}
+
+		else if (input == 3)
+		{
+			moveCounter--;
+
+		}
+
+		else if (input == 4)
+		{
+			moveCounter--;
+
+		}
+
+		else
+		{
+			moveCounter += 1;
+			cout << "\nInvalid Input. Please Try Again.\n";
+
+		}
+
+		markMap();
+	} while (moveCounter != 0);
+	moveCounter = 3; // Used to reset the counter
+}
+
+int main()
+{
+	srand(time(NULL)); // This is used to make random numbers
+	startUp();
+	markMap();
+	playerTurn();
+}
