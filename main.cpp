@@ -2,18 +2,24 @@
 #include <iostream>
 using namespace std;
 
-int playerX = 4, playerY = 1;
+int playerX = 4, playerY = 1,playerHP = 6;
 char map[6][8] = { 
 	{'O','O','O','O','O','O','O','O'}, 
 	{'O','O','O','O','O','O','O','O'},
 	{'O','O','O','O','O','O','O','O'},
 	{'O','O','O','O','O','O','O','O'},
-	{'O','O','O','O','O','O','O','O'},
+	{'O','O','E','O','O','O','O','O'},
 	{'O','O','O','O','O','O','O','O'},
 	 };
 
+//Movement Items
+string movements[2] = { "Standard Walk","Diagonal Dash" };
 
+//Attack Items
+string attacks[] = { "Jab Attack", "Ranged Attack", "Swing Attack"};
 
+//Consumable Items
+string consumables[1] = {"Health Potion"};
 
 
 void enemyTurn()
@@ -22,10 +28,99 @@ void enemyTurn()
 
 
 }
+void jabAttack()
+{
 
+
+	int dirInput;
+	cout << "\nWhich Direction?\n1. Up\n2. Down\n3. Left\n4. Right";
+	cin >> dirInput;
+	int tempX, tempY;
+
+	if (dirInput == 1)
+	{
+		tempX = -1;
+		tempY = 0;
+
+	}
+
+	else if (dirInput == 2)
+	{
+		tempX = 1;
+		tempY = 0;
+	}
+
+	else if (dirInput == 3)
+	{
+		tempX = 0;
+		tempY = -1;
+	}
+
+	else if (dirInput == 4)
+	{
+		tempX = 0;
+		tempY = 1;
+	}
+
+	else
+	{
+		tempX = 0;
+		tempY = 0;
+
+	}
+
+
+	if (map[playerX + tempX][playerY + tempY] == 'E')
+	{
+		//Take away enemy damage
+
+		cout << "\nYou attacked the enemy for 2 DMG!\n";
+
+	}
+
+	else
+	{
+
+		cout << "\nYou swung at nothing...\n";
+
+
+	}
+
+
+
+}
 
 void attack()
 {
+	int input;
+	cout << "\nWhat would you like to do?\n";
+	for (int i = 0; i < sizeof(attacks) / sizeof(*attacks); i++)
+	{
+		cout <<"\n" << i + 1 << ": " << attacks[i];
+
+	}
+	cout << "\n";
+	cin >> input;
+
+
+	if (input - 1 == 0)
+	{
+		jabAttack();
+	}
+
+	else if (input - 1 == 1)
+	{
+
+
+	}
+
+	else if (input - 1 == 2)
+	{
+
+
+
+	}
+
 
 
 
@@ -109,13 +204,13 @@ void playerTurn()
 
 		else if (input == 2)
 		{
-
+			attack();
 
 		}
 
 		else if (input == 3)
 		{
-
+			push();
 
 		}
 
