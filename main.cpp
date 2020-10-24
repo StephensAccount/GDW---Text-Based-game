@@ -1,9 +1,11 @@
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
+#include <vector>
 using namespace std;
 
 // Global variables
+
 int playerX = 4, playerY = 1;
 int moveCounter = 3; // Player's moves
 char map[6][8] = { // Global variables
@@ -22,10 +24,11 @@ int player2TotalHealth = 0; // Used in end calcation
 
 int player1PotionCounter = 1; // This is used to keep track of the amount of potions player 1 has
 int player2PotionCounter = 1; // This is used to keep track of the amount of potions player 2 has
-int diagDash = 1;
+int diagDash1 = 1; // Counters for storing diagonal dash
+int diagDash2 = 1;
 
 int adventurerList[4][3]{ // First slot is the Health, second and third slot is the X and Y coordinates
-	{6,4,1},
+	{6,2,6},
 	{6,3,2},
 	{6,1,0},
 	{6,5,5},
@@ -53,16 +56,21 @@ void startUp() {
 		cin >> adventurerNameList[i]; // Use gameTurn to repersent the array numbers
 	}
 
-	int obstacleNumber = rand() % 8 + 1;  // Determines the number of obstacles
+	int obstacleNumber = rand() % 4 + 4;  // Determines the number of obstacles
 	 // system("Color C1"); // This used to change the color
 	cout << "Obstacles: " << obstacleNumber << endl;
 	do {
 		int x = rand() % 6; // Determines the vertical coordinate
 		int y = rand() % 8; // Determines the horizonal coordinate
-		cout << x << " " << y << endl;
 
-		if ((x != playerX) && (y != playerY) && (map[x][y] != 'B')) {
-			map[x][y] = '#';
+		int check = 0; // used to check the x and y cooridinates of the adventurers
+		for (int i = 0; i <= 3; i++) {
+			if ((x != adventurerList[i][1]) && (y != adventurerList[i][2]) && (map[x][y] != '#')) {
+				check++; // Checks if there is nothing overlapping
+			}
+		}
+		if (check == 4) {
+			map[x][y] = '#'; // Enters in the obstacale
 			obstacleNumber--;
 		}
 	} while (obstacleNumber > 0);
@@ -236,7 +244,7 @@ void swingAttack() {
 	cout << "\n!!ARE YOU SURE? FRIENDLY FIRE IS ON!!\n1. Yes\n2. No (refund action point)";
 	cin >> finalCheck;
 	if (finalCheck == 1) {
-		
+
 		for (int x = -1; x <= 1; x++)
 		{
 			for (int y = -1; y <= 1; y++)
@@ -339,9 +347,77 @@ void AdventurerItems() { // Need to input the adventurer number here!
 
 void push()
 {
+	int dirInput;
+	int newX = 0, newY = 0;
+	cout << "\nPush at what direction?\n1. Up\n2. Down\n3. Left\n4. Right\n5. Back to menu\n"; // This is no option for 5. as it is set as the default 
+	cin >> dirInput;
+	if (dirInput == 1) // Player moving up 
+	{
+		newX = -1;
+	}
+	else if (dirInput == 2) // Player moving down 
+	{
+		newX = 1;
+	}
+	else if (dirInput == 3) // Player moving left 
+	{
+		newY = -1;
+	}
+	else if (dirInput == 4) // Player moving right 
+	{
+		newY = 1;
+	}
+	else // Player chose to go back to the menu 
+	{
+		moveCounter++;
+	}
+
+	if (map[adventurerList[gameTurn][1] + newX][adventurerList[gameTurn][2] + newY] == '#')
+	{
+		char temp = 'I';
+		int counter = 0;
+		map[adventurerList[gameTurn][1]][adventurerList[gameTurn][2]] = '-'; // Erases the last A on the map
+		adventurerList[gameTurn][1] += newX;
+		adventurerList[gameTurn][2] += newY;
+		map[adventurerList[gameTurn][1]][adventurerList[gameTurn][2]] = 'A'; // Adds the new location onto the map
+		map[adventurerList[gameTurn][1] + newX][adventurerList[gameTurn][2] + newY] = '#';
+
+		while (temp != '-')
+		{
+			counter++;
+			temp = map[adventurerList[gameTurn][1] + (counter * newX)][adventurerList[gameTurn][2] + (counter * newY)]; //stores the current char being checked
+
+			if (map[adventurerList[gameTurn][1] + (counter * newX)][adventurerList[gameTurn][2] + (counter * newY)] == '#') //checks if it should shift over the box
+			{
+				map[adventurerList[gameTurn][1] + (counter * newX)][adventurerList[gameTurn][2] + (counter * newY)] = '*';
+				map[adventurerList[gameTurn][1] + ((counter + 1) * newX)][adventurerList[gameTurn][2] + ((counter + 1) * newY)] = '#';				
+				counter++;
+			}
+			
+			for (int i = 0; i < 4; i++) //checks if it should shift over the adventurers
+			{
+				if (adventurerList[gameTurn][1] + (counter * newX) == adventurerList[i][1] && adventurerList[gameTurn][2] + (counter * newY) == adventurerList[i][2])
+				{
+					adventurerList[i][1] += newX;
+					adventurerList[i][2] += newY;
+					counter++;
+				}
+				
+			}
+			
+			
 
 
+		}
 
+		
+	}
+	else
+	{
+		cout << endl;
+		cout << "!!Well Done, you pushed at thin air! (action point refunded)!!\n";
+		moveCounter++;
+	}
 }
 
 void move()
@@ -349,7 +425,12 @@ void move()
 	cout << gameTurn;
 	int moveInput;
 	int newX = 0, newY = 0;
-	cout << "\nWhat Type of Movement?\n1. Standard Walk\n2. Diagonal Dash: " << diagDash << "\n";
+	if ((gameTurn == 0) || (gameTurn == 1)) {
+		cout << "\nWhat Type of Movement?\n1. Standard Walk\n2. Diagonal Dash: " << diagDash1 << "\n";
+	}
+	else if ((gameTurn == 0) || (gameTurn == 1)) {
+		cout << "\nWhat Type of Movement?\n1. Standard Walk\n2. Diagonal Dash: " << diagDash2 << "\n";
+	}
 	cin >> moveInput;
 	if (moveInput == 1)
 	{
@@ -389,76 +470,106 @@ void move()
 
 	else if (moveInput == 2)
 	{
-		if (diagDash > 0)
-		{
-			int dirInput;
-			cout << "\nWhich Direction?\n1. Top-Left\n2. Top-Right\n3. Bottom-Left\n4. Bottom-Right\n5. Back to menu\n"; // This is no option for 5. as it is set as the default 
-			cin >> dirInput;
-
-			if (dirInput == 1) // Top Left
+		if ((gameTurn == 0) || (gameTurn == 1)) {
+			if (diagDash1 > 0)
 			{
-				newX = -1;
-				newY = -1;
-				diagDash -= 1;
+				int dirInput;
+				cout << "\nWhich Direction?\n1. Top-Left\n2. Top-Right\n3. Bottom-Left\n4. Bottom-Right\n5. Back to menu\n"; // This is no option for 5. as it is set as the default 
+				cin >> dirInput;
+				if (dirInput == 1) // Top Left
+				{
+					newX = -1;
+					newY = -1;
+					diagDash1 -= 1;
+				}
+				else if (dirInput == 2) // Top Right
+				{
+					newX = -1;
+					newY = 1;
+					diagDash1 -= 1;
+				}
+				else if (dirInput == 3) // Bottom Left
+				{
+					newX = 1;
+					newY = -1;
+					diagDash1 -= 1;
+
+				}
+				else if (dirInput == 4) // Bottom Right
+				{
+					newX = 1;
+					newY = 1;
+					diagDash1 -= 1;
+
+				}
+				else // Player chose to go back to the menu 
+				{
+					moveCounter++;
+				}
 			}
-
-			else if (dirInput == 2) // Top Right
+			else
 			{
-				newX = -1;
-				newY = 1;
-				diagDash -= 1;
-			}
-
-			else if (dirInput == 3) // Bottom Left
-			{
-				newX = 1;
-				newY = -1;
-				diagDash -= 1;
-
-			}
-
-			else if (dirInput == 4) // Bottom Right
-			{
-				newX = 1;
-				newY = 1;
-				diagDash -= 1;
-
-			}
-
-			else // Player chose to go back to the menu 
-			{
+				cout << "You have run out of this item.";
 				moveCounter++;
 			}
-
 		}
+		else if ((gameTurn == 2) || (gameTurn == 3)) {
+			if (diagDash2 > 0)
+			{
+				int dirInput;
+				cout << "\nWhich Direction?\n1. Top-Left\n2. Top-Right\n3. Bottom-Left\n4. Bottom-Right\n5. Back to menu\n"; // This is no option for 5. as it is set as the default 
+				cin >> dirInput;
+				if (dirInput == 1) // Top Left
+				{
+					newX = -1;
+					newY = -1;
+					diagDash2 -= 1;
+				}
+				else if (dirInput == 2) // Top Right
+				{
+					newX = -1;
+					newY = 1;
+					diagDash2 -= 1;
+				}
+				else if (dirInput == 3) // Bottom Left
+				{
+					newX = 1;
+					newY = -1;
+					diagDash2 -= 1;
 
-		else
-		{
-			cout << "You have run out of this item.";
-			moveCounter++;
+				}
+				else if (dirInput == 4) // Bottom Right
+				{
+					newX = 1;
+					newY = 1;
+					diagDash2 -= 1;
+
+				}
+				else // Player chose to go back to the menu 
+				{
+					moveCounter++;
+				}
+			}
+			else
+			{
+				cout << "You have run out of this item.";
+				moveCounter++;
+			}
 		}
 	}
-
-		//Moves Player & Checks for enemies
-		if (map[adventurerList[gameTurn][1] + newX][adventurerList[gameTurn][2] + newY] != 'A' && map[adventurerList[gameTurn][1] + newX][adventurerList[gameTurn][2] + newY] != '#')
-		{
-			map[adventurerList[gameTurn][1]][adventurerList[gameTurn][2]] = '-';
-			adventurerList[gameTurn][1] += newX;
-			adventurerList[gameTurn][2] += newY;
-		}
-
-		else
-		{
-			cout << endl;
-			cout << "!!The Enemy is blocking your path!!\n";
-			moveCounter++;
-		}
-
-
-
-
-
-	
+	//Moves Player & Checks for enemies
+	if (map[adventurerList[gameTurn][1] + newX][adventurerList[gameTurn][2] + newY] != 'A' && map[adventurerList[gameTurn][1] + newX][adventurerList[gameTurn][2] + newY] != '#')
+	{
+		map[adventurerList[gameTurn][1]][adventurerList[gameTurn][2]] = '-';
+		adventurerList[gameTurn][1] += newX;
+		adventurerList[gameTurn][2] += newY;
+	}
+	else
+	{
+		cout << endl;
+		cout << "!!The Enemy is blocking your path!!\n";
+		moveCounter++;
+	}
 
 }
 
@@ -477,6 +588,12 @@ void markMap()
 					map[x][y] = 'A';
 				}
 			}
+
+			//if (map[x][y] == '*')
+			//{
+
+			//	map[x][y] = '#';
+			//}
 			cout << map[x][y] << " "; // used to separate the map a bit
 		}
 	}
@@ -510,6 +627,7 @@ void playerTurn()
 
 		else if (input == 3)
 		{
+			push();
 			moveCounter--;
 		}
 
@@ -558,7 +676,7 @@ void pickingWinners() {
 
 int main()
 {
-	srand(time(NULL)); // This is used to make random numbers. Seed 2 is a good one to use for the presentation 
+	srand(time(NULL)); // This is used to make random numbers
 	startUp(); // Starts up the gameboard
 	markMap();
 	do {
@@ -578,3 +696,4 @@ int main()
 
 	pickingWinners();
 }
+
